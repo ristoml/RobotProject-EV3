@@ -18,8 +18,11 @@ import lejos.robotics.chassis.WheeledChassis;
 import lejos.robotics.localization.PoseProvider;
 import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.navigation.Pose;
+import lejos.robotics.navigation.Waypoint;
+import lejos.robotics.pathfinding.Path;
 import sensors.Infrared;
 import threads.Move;
+import threads.Navigate;
 import threads.RobotAction;
 
 public class Main {
@@ -32,11 +35,19 @@ public class Main {
     public static final int MOVE_BACKWARD = 3;
     public static final int TURN_LEFT = 4;
     public static final int TURN_RIGHT = 5;
+    
+    public static final int NAVIGATE = 6;
 
     private static PoseProvider poseProvider;
+    static Chassis chassis;
     private static MovePilot pilot;
-    private static double diameter = 3.13;
-    private static double offset = 8.37;
+    //private static double diameter = 4.10;
+    private static double diameter = 4.15;
+
+    private static double offset = 6.49;
+    //private static double offset = 6.45;
+    // private static double diameter = 3.13;
+    // private static double offset = 8.37;
 
     private static ServerSocket server;
     private static Socket socket;
@@ -85,11 +96,14 @@ public class Main {
         Wheel leftWheel = WheeledChassis.modelWheel(left, diameter).offset(offset);
         Wheel rightWheel = WheeledChassis.modelWheel(right, diameter).offset(-offset);
 
-        Chassis chassis = new WheeledChassis(new Wheel[] { leftWheel, rightWheel }, WheeledChassis.TYPE_DIFFERENTIAL);
+        chassis = new WheeledChassis(new Wheel[] { leftWheel, rightWheel }, WheeledChassis.TYPE_DIFFERENTIAL);
         poseProvider = chassis.getPoseProvider();
 
         // TODO: poista testi
-        poseProvider.setPose(new Pose(20, 20, 0));
+        //poseProvider.setPose(new Pose(20, 20, 0));
+
+        Waypoint wp = new Waypoint(20, 20);
+        poseProvider.setPose(wp.getPose());
 
         pilot = new MovePilot(chassis);
     }
@@ -127,6 +141,25 @@ public class Main {
                     }
                     currentAction = new Move(code, pilot, out, poseProvider);
                     currentAction.start();
+                    break;
+                    
+                case NAVIGATE:
+                    System.out.println("nav");
+                    if (currentAction != null) {
+                        currentAction.exit();
+                    }
+                    Path path = new Path();
+                    path.loadObject(in);
+                    
+                    currentAction = new Navigate(path, pilot, out, chassis);
+                    currentAction.start();
+                    try {
+                        currentAction.join();
+                    } catch (InterruptedException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    currentAction.exit();
+                    currentAction = null;
                     break;
 
                 case STOP:
