@@ -34,20 +34,12 @@ public class Navigate extends RobotAction {
  
         Navigator navi = new Navigator(pilot, pp);
         
-        //navi.setPoseProvider(pp);
-        //pp = navi.getPoseProvider();
-        
         PosSender psender = new PosSender();
         psender.start();
         
-        //pp.setPose(new Pose(20,20,0));
-        
         for (Waypoint wp : path) {
-            //Pose goesTo = wp.getPose();
             Pose currentPose = pp.getPose();
-            //System.out.println(currentPose+"=>"+goesTo);
             Path path = pathFinder.findRoute(currentPose, wp);
-            //navi.goTo(wp);
             navi.followPath(path);
             navi.waitForStop();
         }

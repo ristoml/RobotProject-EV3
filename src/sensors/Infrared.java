@@ -24,7 +24,7 @@ public class Infrared {
 		return sample[0];
 	}
 	
-	public boolean etaisyysrajaSaavutettu(float raja) {
-		return distance() <= raja;
+	public boolean distanceLimitReached(float limit) {
+	    return distance() <= limit;
 	}
 }

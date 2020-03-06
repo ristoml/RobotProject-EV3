@@ -15,7 +15,9 @@ import lejos.robotics.RegulatedMotor;
 import lejos.robotics.chassis.Chassis;
 import lejos.robotics.chassis.Wheel;
 import lejos.robotics.chassis.WheeledChassis;
+import lejos.robotics.geometry.Line;
 import lejos.robotics.localization.PoseProvider;
+import lejos.robotics.mapping.LineMap;
 import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.navigation.Pose;
 import lejos.robotics.navigation.Waypoint;
@@ -57,10 +59,13 @@ public class Main {
     private static VideoOut vout;
 
     private static Infrared inf;
+    
+    private static LineMap map;
 
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+        map = testMap();
 
         initSocket();
         initRobot();
@@ -106,6 +111,8 @@ public class Main {
         poseProvider.setPose(wp.getPose());
 
         pilot = new MovePilot(chassis);
+        pilot.setAngularSpeed(100);
+        //pilot.setLinearAcceleration(100);
     }
 
     private static void openIOstreams() {
@@ -124,27 +131,41 @@ public class Main {
         }
     }
 
+    private static volatile boolean moveLock = false;
+    
+    public static synchronized void setMoveLock(boolean lock) {
+        moveLock = lock;
+    }
+    
     private static void startRobot() throws IOException {
         RobotAction currentAction = null;
 
         int code;
         do {
             code = in.readInt();
-
+            
             switch (code) {
                 case MOVE_FORWARD:
+                    if (moveLock || inf.distanceLimitReached(100)) {
+                        System.out.println("limit reached");
+                        continue;
+                    }
                 case MOVE_BACKWARD:
+                    setMoveLock(false);
                 case TURN_LEFT:
+                    setMoveLock(false);
                 case TURN_RIGHT:
+                    if (code == TURN_RIGHT) {
+                        setMoveLock(false);
+                    }
                     if (currentAction != null) {
                         currentAction.exit();
                     }
-                    currentAction = new Move(code, pilot, out, poseProvider);
+                    currentAction = new Move(code, pilot, out, poseProvider, inf, map);
                     currentAction.start();
                     break;
                     
                 case NAVIGATE:
-                    System.out.println("nav");
                     if (currentAction != null) {
                         currentAction.exit();
                     }
@@ -184,6 +205,32 @@ public class Main {
 
         vout.exit();
         out.exit();
+    }
+    
+    private static LineMap testMap() {
+    lejos.robotics.geometry.Rectangle alue =
+        new lejos.robotics.geometry.Rectangle(0, 0, 150, 150);
+        Line[] esteet = new Line[12];
+
+        // reunat
+        esteet[0] = new Line(0, 0, 150, 0);
+        esteet[1] = new Line(150, 0, 150, 150);
+        esteet[2] = new Line(0, 150, 150, 150);
+        esteet[3] = new Line(0, 0, 0, 150);
+
+        // väliseinä1
+        esteet[4] = new Line(50, 40, 60, 40);
+        esteet[5] = new Line(60, 40, 60, 110);
+        esteet[6] = new Line(50, 110, 60, 110);
+        esteet[7] = new Line(50, 40, 50, 110);
+
+        // väliseinä2
+        esteet[8] = new Line(100, 40, 110, 40);
+        esteet[9] = new Line(110, 40, 110, 110);
+        esteet[10] = new Line(100, 110, 110, 110);
+        esteet[11] = new Line(100, 40, 100, 110);
+
+        return new LineMap(esteet, alue);
     }
 
 }
