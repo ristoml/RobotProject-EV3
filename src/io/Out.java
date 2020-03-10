@@ -6,6 +6,9 @@ import java.net.Socket;
 
 import lejos.robotics.navigation.Pose;
 
+/**
+ * A thread intended to handle all writes to output stream synchronously.
+ */
 public class Out extends Thread {
     
     public static final int SEND_POSITION = 1;

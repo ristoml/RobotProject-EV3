@@ -6,6 +6,11 @@ import org.opencv.core.MatOfInt;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
 
+/**
+ * A thread solely intended for capturing web camera-images and sending them to the PC-client.
+ * The code for capturing video was inspired from this article:
+ * https://lejosnews.wordpress.com/2015/09/26/opencv-web-streaming/
+ */
 public class VideoOut extends Thread {
 
     private volatile boolean done;

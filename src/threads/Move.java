@@ -9,6 +9,9 @@ import lejos.robotics.navigation.Pose;
 import robot.Main;
 import sensors.Infrared;
 
+/**
+ * Moves the robot based on user input. Is a RobotAction, and would run as a separate thread.
+ */
 public class Move extends RobotAction {
 
     private Out out;
@@ -34,6 +37,10 @@ public class Move extends RobotAction {
         switch (code) {
             case Main.MOVE_FORWARD:
                 os = new ObstacleSensor(this);
+                if (os.checkForObstacles()) { // initial check before moving
+                    this.exit();
+                    return; // already facing an obstacle, return immediately
+                }
                 os.start();
                 pilot.forward();
                 break;
@@ -66,10 +73,44 @@ public class Move extends RobotAction {
         public ObstacleSensor(Move m) {
             this.m = m;
         }
+        
+        public boolean checkForObstacles() {
+            return checkWithInfrared() || checkForIntersect();
+        }
+        
+        private boolean checkForIntersect() {
+            Pose currentPose = pp.getPose();
+            double deg = currentPose.getHeading();
+            double rad = Math.toRadians(deg);
+            
+            double x1 = currentPose.getX();
+            double y1 = currentPose.getY();
+
+            double hyp = 17;
+            double x2 = Math.cos(rad) * hyp + x1;
+            double y2 = Math.sin(rad) * hyp + y1;
+
+            for (Line l : map.getLines()) {
+                if (l.intersectsLine(x1, y1, x2, y2)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        private boolean checkWithInfrared() {
+            return inf.distanceLimitReached(100);
+        }
 
         @Override
         public void run() {
             while (!done) {
+                
+                if (checkForObstacles()) {
+                    m.exit();
+                }
+                
+                /*
                 Pose currentPose = pp.getPose();
                 double deg = currentPose.getHeading();
                 double rad = Math.toRadians(deg);
@@ -80,10 +121,7 @@ public class Move extends RobotAction {
                 double hyp = 17;
                 double x2 = Math.cos(rad) * hyp + x1;
                 double y2 = Math.sin(rad) * hyp + y1;
-                
-                //Line robotHeadingLine =
-                  //      new Line((float)x1, (float)y1, (float)x2, (float)y2);
-                
+
                 for (Line l : map.getLines()) {
                     if (l.intersectsLine(x1, y1, x2, y2)) {
                         Main.setMoveLock(true);
@@ -95,6 +133,7 @@ public class Move extends RobotAction {
                     Main.setMoveLock(true);
                     m.exit();
                 }
+                */
             }
         }
 

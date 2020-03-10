@@ -12,6 +12,11 @@ import lejos.robotics.navigation.Waypoint;
 import lejos.robotics.pathfinding.Path;
 import lejos.robotics.pathfinding.ShortestPathFinder;
 
+
+/**
+ * A RobotAction that navigates the robot through waypoints from user.
+ * Uses ShortestPathFinder to aid the pilot to avoid crossing map's borders.
+ */
 public class Navigate extends RobotAction {
     
     private Path path;

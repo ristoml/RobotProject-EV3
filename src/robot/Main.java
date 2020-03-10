@@ -27,21 +27,49 @@ import threads.Move;
 import threads.Navigate;
 import threads.RobotAction;
 
+/**
+ * @author sami
+ * @author risto
+ *
+ */
 public class Main {
 
+    /**
+     * Socket port.
+     */
     private static final int PORT = 1111;
 
+    /**
+     * The integer constant expected from PC-client, when stopping robot's movement.
+     */
     public static final int STOP = -1;
+    /**
+     * The integer expected from PC-client, when ending the robot's program.
+     */
     public static final int END_ROBOT_PROGRAM = -2;
+    /**
+     * The integer expected from PC-client, when moving robot forward.
+     */
     public static final int MOVE_FORWARD = 2;
+    /**
+     * The integer expected from PC-client, when moving robot backwards.
+     */
     public static final int MOVE_BACKWARD = 3;
+    /**
+     * The integer expected from PC-client, when turning robot left.
+     */
     public static final int TURN_LEFT = 4;
+    /**
+     * The integer expected from PC-client, when turning robot right.
+     */
     public static final int TURN_RIGHT = 5;
-    
+    /**
+     * The integer expected from PC-client for navigation mode.
+     */    
     public static final int NAVIGATE = 6;
 
     private static PoseProvider poseProvider;
-    static Chassis chassis;
+    private static Chassis chassis;
     private static MovePilot pilot;
     //private static double diameter = 4.10;
     private static double diameter = 4.15;
@@ -68,8 +96,9 @@ public class Main {
         map = testMap();
 
         initSocket();
-        initRobot();
         openIOstreams();
+        getConfig();
+        initRobot();
 
         try {
             startRobot();
@@ -80,6 +109,10 @@ public class Main {
         }
     }
 
+    
+    /**
+     * Initialize ServerSocket and wait for connection from PC-side.
+     */
     private static void initSocket() {
         try {
             server = new ServerSocket(PORT);
@@ -91,7 +124,22 @@ public class Main {
         }
         System.out.println("Connected successfully.");
     }
+    
+    private static void getConfig() {
+        try {
+            diameter = in.readDouble();
+            offset = in.readDouble();
+        } catch (Exception ex) {
+            System.out.println("reading config failed");
+        }
+        System.out.println("diameter: "+diameter);
+        System.out.println("offset: "+offset);
+    }
 
+    /**
+     * Initialize all necessary pieces that form the robot.
+     * This includes an infrared sensor, two motors, wheels, chassis and pilot.
+     */
     private static void initRobot() {
         inf = new Infrared("S4");
 
@@ -105,16 +153,21 @@ public class Main {
         poseProvider = chassis.getPoseProvider();
 
         // TODO: poista testi
-        //poseProvider.setPose(new Pose(20, 20, 0));
+        poseProvider.setPose(new Pose(20, 20, 0));
 
-        Waypoint wp = new Waypoint(20, 20);
-        poseProvider.setPose(wp.getPose());
+        //Waypoint wp = new Waypoint(20, 20);
+        //poseProvider.setPose(wp.getPose());
 
         pilot = new MovePilot(chassis);
         pilot.setAngularSpeed(100);
         //pilot.setLinearAcceleration(100);
     }
 
+    /**
+     * Opens I/O-streams. To be more precise, opens DataInputStream using socket's input stream,
+     * creates a new instance of Out passing the socket, and creates a new instance of VideoOut
+     * and starts it.
+     */
     private static void openIOstreams() {
         try {
             in = new DataInputStream(socket.getInputStream());
@@ -131,12 +184,19 @@ public class Main {
         }
     }
 
+    /*
     private static volatile boolean moveLock = false;
     
     public static synchronized void setMoveLock(boolean lock) {
         moveLock = lock;
     }
+    */
     
+    /**
+     * Starts the main loop where robot is waiting for user input in a loop.
+     * May throw an IOException, which is intended to be catched in the main-method.
+     * @throws IOException
+     */
     private static void startRobot() throws IOException {
         RobotAction currentAction = null;
 
@@ -146,18 +206,19 @@ public class Main {
             
             switch (code) {
                 case MOVE_FORWARD:
+                    /*
                     if (moveLock || inf.distanceLimitReached(100)) {
                         System.out.println("limit reached");
                         continue;
-                    }
+                    }*/
                 case MOVE_BACKWARD:
-                    setMoveLock(false);
+                    //setMoveLock(false);
                 case TURN_LEFT:
-                    setMoveLock(false);
+                    //setMoveLock(false);
                 case TURN_RIGHT:
-                    if (code == TURN_RIGHT) {
+                    /*if (code == TURN_RIGHT) {
                         setMoveLock(false);
-                    }
+                    }*/
                     if (currentAction != null) {
                         currentAction.exit();
                     }
@@ -193,6 +254,9 @@ public class Main {
         } while (code != END_ROBOT_PROGRAM);
     }
 
+    /**
+     * Closes all I/0-streams when the program finishes.
+     */
     private static void closeIOstreams() {
         try {
             socket.close();
@@ -208,8 +272,8 @@ public class Main {
     }
     
     private static LineMap testMap() {
-    lejos.robotics.geometry.Rectangle alue =
-        new lejos.robotics.geometry.Rectangle(0, 0, 150, 150);
+        lejos.robotics.geometry.Rectangle alue =
+                new lejos.robotics.geometry.Rectangle(0, 0, 150, 150);
         Line[] esteet = new Line[12];
 
         // reunat

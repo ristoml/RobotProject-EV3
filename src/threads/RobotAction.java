@@ -1,5 +1,9 @@
 package threads;
 
+/**
+ * Abstract class representing some behavior of the robot,
+ * which would run in a separate thread.
+ */
 public abstract class RobotAction extends Thread {
 
     protected volatile boolean done = false;
