@@ -109,31 +109,6 @@ public class Move extends RobotAction {
                 if (checkForObstacles()) {
                     m.exit();
                 }
-                
-                /*
-                Pose currentPose = pp.getPose();
-                double deg = currentPose.getHeading();
-                double rad = Math.toRadians(deg);
-                
-                double x1 = currentPose.getX();
-                double y1 = currentPose.getY();
-
-                double hyp = 17;
-                double x2 = Math.cos(rad) * hyp + x1;
-                double y2 = Math.sin(rad) * hyp + y1;
-
-                for (Line l : map.getLines()) {
-                    if (l.intersectsLine(x1, y1, x2, y2)) {
-                        Main.setMoveLock(true);
-                        m.exit();
-                    }
-                }
-                
-                if (inf.distanceLimitReached(100)) {
-                    Main.setMoveLock(true);
-                    m.exit();
-                }
-                */
             }
         }
 

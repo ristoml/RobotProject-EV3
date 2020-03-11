@@ -38,8 +38,7 @@ public class VideoOut extends Thread {
             vid.read(mat);
             
             if (!mat.empty()) {
-                MatOfByte buf = new MatOfByte();
-                //Highgui.imencode(".jpg", mat, buf);
+                MatOfByte buf = new MatOfByte();                
                 MatOfInt params = new MatOfInt(Highgui.CV_IMWRITE_JPEG_QUALITY, 95);
                 Highgui.imencode(".jpg", mat, buf, params);
                 byte[] imageBytes = buf.toArray();
