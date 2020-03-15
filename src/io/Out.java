@@ -11,13 +11,24 @@ import lejos.robotics.navigation.Pose;
  */
 public class Out extends Thread {
     
+    /**
+     * Constant for write method. Used when sending a {@link Pose}-object.
+     */
     public static final int SEND_POSITION = 1;
-    public static final int SEND_PICTURE = 2;
+    /**
+     * Constant for write method. Used when sending a video frame as byte[].
+     */
+    public static final int SEND_VIDEO_FRAME = 2;
     
     private volatile boolean done;
     
     private DataOutputStream out;
     
+    /**
+     * Constructor that takes a socket, and gets its output stream.
+     * @param socket
+     * @throws IOException
+     */
     public Out(Socket socket) throws IOException {
         this.out = new DataOutputStream(socket.getOutputStream());
         this.done = false;
@@ -28,15 +39,20 @@ public class Out extends Thread {
         while (!done);
     }
 
+    /**
+     * Writes an object of specified type (see constants of this class) to the output stream.
+     * @param type see constants of this class
+     * @param data data as Object.
+     */
     public void write(int type, Object data) {
         switch (type) {
-            case SEND_PICTURE:
+            case SEND_VIDEO_FRAME:
                 byte[] imageBytes = (byte[])data;
                 int len = imageBytes.length;
 
                 try {
                     synchronized (this) {
-                        out.writeInt(SEND_PICTURE);
+                        out.writeInt(SEND_VIDEO_FRAME);
                         out.flush();
                         out.writeInt(len);
                         out.flush();
@@ -63,6 +79,9 @@ public class Out extends Thread {
         }
     }
     
+    /**
+     * End the life of a running Out-instance.
+     */
     public void exit() {
         try {
             out.close();

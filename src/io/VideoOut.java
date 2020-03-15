@@ -7,9 +7,11 @@ import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
 
 /**
- * A thread solely intended for capturing web camera-images and sending them to the PC-client.
- * The code for capturing video was inspired from this article:
+ * A thread solely intended for capturing web camera-images and sending them to the PC-client.<br>
+ * The code for capturing video was inspired from this article:<br>
+ * <a href="https://lejosnews.wordpress.com/2015/09/26/opencv-web-streaming/">
  * https://lejosnews.wordpress.com/2015/09/26/opencv-web-streaming/
+ * </a>
  */
 public class VideoOut extends Thread {
 
@@ -18,6 +20,13 @@ public class VideoOut extends Thread {
     private int frameWidth;
     private int frameHeight;
 
+    /**
+     * Constructor that takes an instance of Out, which will be used to send video frames,
+     * and the video frame width and height
+     * @param out instance of Out
+     * @param frameWidth video frame width
+     * @param frameHeight video frame height
+     */
     public VideoOut(Out out, int frameWidth, int frameHeight) {
         this.out = out;
         this.frameWidth = frameWidth;
@@ -43,11 +52,14 @@ public class VideoOut extends Thread {
                 Highgui.imencode(".jpg", mat, buf, params);
                 byte[] imageBytes = buf.toArray();
 
-                out.write(Out.SEND_PICTURE, (Object)imageBytes);
+                out.write(Out.SEND_VIDEO_FRAME, (Object)imageBytes);
             }
         }
     }
     
+    /**
+     * End the life of a running VideoOut-instance.
+     */
     public void exit() {
         done = true;
     }

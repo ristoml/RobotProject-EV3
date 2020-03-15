@@ -28,9 +28,7 @@ import threads.Navigate;
 import threads.RobotAction;
 
 /**
- * @author sami
- * @author risto
- *
+ * 
  */
 public class Main {
 
@@ -40,7 +38,7 @@ public class Main {
 	private static final int PORT = 1111;
 
 	/**
-	 * The integer constant expected from PC-client, when stopping robot's movement.
+	 * The integer expected from PC-client, when stopping robot's movement.
 	 */
 	public static final int STOP = -1;
 	/**
@@ -86,6 +84,11 @@ public class Main {
 
 	private static LineMap map;
 
+	/**
+	 * Loads the OpenCV-library, initializes a server socket, opens I/0 streams, gets robot's configuration from PC-client,
+	 * initializes the robot, and then begins looping for user input. 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
@@ -120,6 +123,9 @@ public class Main {
 		System.out.println("Connected successfully.");
 	}
 
+	/**
+	 * Reads the robot's configuration (diameter, offset) from PC-client.
+	 */
 	private static void getConfig() {
 		try {
 			diameter = in.readDouble();
@@ -177,7 +183,6 @@ public class Main {
 	/**
 	 * Starts the main loop where robot is waiting for user input in a loop. May
 	 * throw an IOException, which is intended to be caught in the main-method.
-	 * 
 	 * @throws IOException
 	 */
 	private static void startRobot() throws IOException {
@@ -245,28 +250,28 @@ public class Main {
 	}
 
 	private static LineMap testMap() {
-		lejos.robotics.geometry.Rectangle alue = new lejos.robotics.geometry.Rectangle(0, 0, 150, 150);
-		Line[] esteet = new Line[12];
+		lejos.robotics.geometry.Rectangle area = new lejos.robotics.geometry.Rectangle(0, 0, 150, 150);
+		Line[] lines = new Line[12];
 
 		// borders
-		esteet[0] = new Line(0, 0, 150, 0);
-		esteet[1] = new Line(150, 0, 150, 150);
-		esteet[2] = new Line(0, 150, 150, 150);
-		esteet[3] = new Line(0, 0, 0, 150);
+		lines[0] = new Line(0, 0, 150, 0);
+		lines[1] = new Line(150, 0, 150, 150);
+		lines[2] = new Line(0, 150, 150, 150);
+		lines[3] = new Line(0, 0, 0, 150);
 
 		// obstacle 1
-		esteet[4] = new Line(50, 40, 60, 40);
-		esteet[5] = new Line(60, 40, 60, 110);
-		esteet[6] = new Line(50, 110, 60, 110);
-		esteet[7] = new Line(50, 40, 50, 110);
+		lines[4] = new Line(50, 40, 60, 40);
+		lines[5] = new Line(60, 40, 60, 110);
+		lines[6] = new Line(50, 110, 60, 110);
+		lines[7] = new Line(50, 40, 50, 110);
 
 		// obstacle 2
-		esteet[8] = new Line(100, 40, 110, 40);
-		esteet[9] = new Line(110, 40, 110, 110);
-		esteet[10] = new Line(100, 110, 110, 110);
-		esteet[11] = new Line(100, 40, 100, 110);
+		lines[8] = new Line(100, 40, 110, 40);
+		lines[9] = new Line(110, 40, 110, 110);
+		lines[10] = new Line(100, 110, 110, 110);
+		lines[11] = new Line(100, 40, 100, 110);
 
-		return new LineMap(esteet, alue);
+		return new LineMap(lines, area);
 	}
 
 }

@@ -65,6 +65,10 @@ public class Move extends RobotAction {
         if (os != null) os.exit();
     }
     
+    /**
+     * A private class this class uses for checking for obstacles in a separate thread.<br>
+     * Obstacles could be physical objects detected by infrared sensor, or lines in robot's area defined by a LineMap.
+     */
     private class ObstacleSensor extends Thread {
         private volatile boolean done = false;
         
@@ -74,10 +78,20 @@ public class Move extends RobotAction {
             this.m = m;
         }
         
+        /**
+         * Checks both for physical objects and lines defined by robot's LineMap.
+         * @return true if obstacle detected, false otherwise.
+         */
         public boolean checkForObstacles() {
             return checkWithInfrared() || checkForIntersect();
         }
         
+        /**
+         * This method calculates coordinates for a short line directly in front of robot's current heading.<br>
+         * It then loops through all the lines of the robot's linemap, checking for intersection with the calculated line.<br>
+         * An intersection means the robot is about to cross a border, and should stop.
+         * @return true if intersection detected, false otherwise.
+         */
         private boolean checkForIntersect() {
             Pose currentPose = pp.getPose();
             double deg = currentPose.getHeading();
@@ -98,6 +112,10 @@ public class Move extends RobotAction {
             return false;
         }
         
+        /**
+         * Checks if the robot is near a physical object by using its infrared sensor.
+         * @return
+         */
         private boolean checkWithInfrared() {
             return inf.distanceLimitReached(100);
         }
@@ -117,6 +135,9 @@ public class Move extends RobotAction {
         }
     }
 
+    /**
+     * A private class this class uses for sending robot's current position to the PC-client.
+     */
     private class PosSender extends Thread {
         private volatile boolean done = false;
 

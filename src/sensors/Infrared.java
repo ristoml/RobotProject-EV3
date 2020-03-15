@@ -34,7 +34,7 @@ public class Infrared {
 	
 	/**
 	 * Checks if a specific distance limit has been reached.
-	 * @param limit
+	 * @param limit the distance limit
 	 * @return true if limit has been reached, false otherwise
 	 */
 	public boolean distanceLimitReached(float limit) {

@@ -8,6 +8,10 @@ public abstract class RobotAction extends Thread {
 
     protected volatile boolean done = false;
 
+    /**
+     * Action that will run when thread starts.
+     * @throws Exception
+     */
     public abstract void action() throws Exception;
 
     @Override
@@ -19,10 +23,16 @@ public abstract class RobotAction extends Thread {
         }
     }
 
+    /**
+     * @return true if an instance is running, false otherwise.
+     */
     public boolean isRunning() {
         return !this.done;
     }
 
+    /**
+     * Ends the life of a RobotAction-instance.
+     */
     public void exit() {
         this.done = true;
     }
